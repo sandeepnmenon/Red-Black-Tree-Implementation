@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <algorithm>
 #define BLACK 0
 #define RED 1
 #define DOUBLE_BLACK 2
@@ -7,7 +8,7 @@ class RBTNode
 {
 	
 	public:
-	bool color;
+	int color;
 	
 	int data;
 	
@@ -158,6 +159,28 @@ class RBT
 		fixInsertViolation(this->root, newNode);
 		
 
+	}
+
+	int blackheight(RBTNode *root)
+	{
+		if(root==NULL)
+			return 0;
+		if(root->color== BLACK)
+		{
+			return 1+max(blackheight(root->left),blackheight(root->right));
+		}
+		else
+			return max(blackheight(root->left),blackheight(root->right));
+	}
+
+	int greatestElememt(RBTNode *root)
+	{
+		if(root==NULL)
+			return NULL;
+		else if (root->right==NULL)
+			return root;
+		else
+			return greatestElememt(root->right);
 	}
 
 };

@@ -1,13 +1,16 @@
-#include <stdlib.h>
+#include <bits/stdc++.h>
 #define BLACK 0
 #define RED 1
 #define DOUBLE_BLACK 2
+#define newline cout<<endl;
+using namespace std;
+
 
 class RBTNode
 {
 	
 	public:
-	bool color;
+	int color;
 	
 	int data;
 	
@@ -19,18 +22,61 @@ class RBTNode
 	{
 		this->data = data;
 		parent = left = right = NULL;
+		color = RED;
 	}
 	
 };
+void inorderTraversal(RBTNode *root)
+{
+	if(root != NULL)
+	{
+		inorderTraversal(root->left);
+		cout<<root->data<<" ";
+		inorderTraversal(root->right);	
+	}
+}
 
-class RBT
+void preorderTraversal(RBTNode *root)
+{
+	if(root != NULL)
+	{
+		cout<<root->data<<" ";
+		preorderTraversal(root->left);
+		preorderTraversal(root->right);	
+	}
+}
+RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
+	{
+		if(root ==NULL)
+			return node;
+		if(root->data > node->data)
+		{
+			root->left = BSTInsert(root->left,node);
+			root->left->parent = root;
+		}
+		else if(root->data < node->data)
+		{
+			root->right = BSTInsert(root->right,node);
+			root->right->parent =root;
+		}
+	
+		return root;
+
+	}
+
+class RedBlackTree
 {
 
+	
+	
+	public:
+	
 	RBTNode* root;
 	
-	RBT(int data)
+	RedBlackTree(int data)
 	{
-		root = NULL;
+		root = new RBTNode(data);
+		root->color = BLACK;
 	}
 	RBTNode* getMinValueNode(RBTNode *subRoot)
 	{
@@ -79,40 +125,41 @@ class RBT
 
 	}
 
-	void rotateLeft(RBTNode *&root, RBTNode *&node)
+	void rotateLeft(RBTNode *node)
 	{
 		RBTNode *rightNode = node->right;
-		
+		RBTNode *nodeParent = node->parent;
 		node->right = rightNode->left;
 		
 		if(node->right != NULL)
 			node->right->parent = node;
 		
-		nodeRight->parent = node->parent;
+		rightNode->parent = nodeParent;
 		
 		if(node->parent ==NULL)
-			root = nodeRight;
+			this->root = rightNode;
 		else if(node == node->parent->left)
-			node->parent->left= nodeRight;
+			node->parent->left= rightNode;
 		else
-			node->parent->right = nodeRight;
+			node->parent->right = rightNode;
 			
-		nodeRight->left = node;
-		node->parent = nodeRight;
+		rightNode->left = node;
+		node->parent = rightNode;
 	}
 	
-	void rotateRight(RBTNode *&root, RBTNode *&node)
+	void rotateRight(RBTNode *node)
 	{
 		RBTNode *nodeLeft = node->left;
 		node->left = nodeLeft->right;
 		
 		if(node->left != NULL)
 			node->left->parent = node;
-			
+		
+		
 		nodeLeft->parent = node->parent;
 		
 		if(node->parent == NULL)
-			root = nodeLeft;
+			this->root = nodeLeft;
 		else if(node == node->parent->left)
 			node->parent->left = nodeLeft;
 		else
@@ -120,22 +167,24 @@ class RBT
 			
 		nodeLeft->right = node;
 		node->parent = nodeLeft;
+
+		//cout<<root->data<<" "<<root->right->data<<endl;
 	}
 	
-	void fixRootNode(RBTNode *&node)
+	
+	void fixInsertViolation(RBTNode *&node)
 	{
 		if(node->parent == NULL)
-			node-color = BLACK;
+			node->color = BLACK;
 		else
-			fixParentNode(node);		
+			fixParentNode(node);
 	}
-	
 	void fixParentNode(RBTNode *&node)
 	{
-		if(node->color == BLACK)
+		if(node->parent->color == BLACK)
 			return ;
 		else
-			fixUncleNode(node);	
+			fixRedUncleNode(node);	
 	}
 	
 	void fixRedUncleNode(RBTNode *&node)
@@ -145,10 +194,10 @@ class RBT
 		if( (uncle != NULL) and (uncle->color == RED) )
 		{
 			node->parent->color = BLACK;
-			uncle-color = BLACK;
+			uncle->color = BLACK;
 			RBTNode *grandParent = getGrandParent(node);
 			grandParent->color = RED;
-			repaintRoot(grandParent);
+			fixInsertViolation(grandParent);
 		}
 		else
 			fixBlackUncleNode(node);
@@ -158,15 +207,18 @@ class RBT
 	{
 		RBTNode *grandParent = getGrandParent(node);
 		
+		if(grandParent == NULL)
+			return ;
+
 		if( (node == node->parent->right) and (node->parent == grandParent->left) )
 		{
 			rotateLeft(node->parent);
-			
 			node = node->left;
 		}
 		else if( (node == node->parent->left) and (node->parent == grandParent->right) )
-		{
-			rotateRight(node->parent);
+		{	
+			
+			rotateRight( node->parent);
 			
 			node = node->right;
 		}
@@ -176,48 +228,24 @@ class RBT
 			grandParent->color = RED;
 			
 			if(node == node->parent->left)
-				rotateRight(grandParent);
+				rotateRight( grandParent);
 			else
-				rotateLeft(grandParent);
+				rotateLeft( grandParent);
 		}
 		
 	}
 	
-	void fixInsertViolation(RBTNode *&root, RBTNode *&node)
-	{
-		fixRootNode(root);
-		fixParentNode(root);
-		fixRedUncleNode(root);
-		fixBlackUncleNode(root);
-	}
 	
-	void insertNode(RBTNode *root, int data)
+	void insertNode(int data)
 	{
-		RBTNode newNode = new RBTNode(data);
+		RBTNode *newNode = new RBTNode(data);
 		
 		this->root = BSTInsert(this->root,newNode);
 		
-		fixInsertViolation(this->root, newNode);
+		fixInsertViolation(newNode);
 		
 	}
 
 };
 
-RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
-	{
-		if(root ==NULL)
-			return node;
-		if(root->data > node->data)
-		{
-			root->left = BSTInsert(root->left,node);
-			root->left->parent = root;
-		}
-		else if(root->data < node->data)
-		{
-			root->right = BSTInsert(root->right,node);
-			root->right->parent =root;
-		}
-	
-		return root;
 
-	}

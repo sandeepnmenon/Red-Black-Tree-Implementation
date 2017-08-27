@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-#include <bits/stdc++.h>
-=======
+#include <iostream>
 #include <stdlib.h>
 #include <algorithm>
->>>>>>> f31a0494208d12af9092f4fd945c42ceeaa778b7
 #define BLACK 0
 #define RED 1
 #define DOUBLE_BLACK 2
@@ -15,9 +12,10 @@ class RBTNode
 {
 	
 	public:
+	
 	int color;
 	
-	bool data;
+	int data;
 	
 	RBTNode* parent;
 	RBTNode* left;
@@ -41,15 +39,6 @@ void inorderTraversal(RBTNode *root)
 	}
 }
 
-void preorderTraversal(RBTNode *root)
-{
-	if(root != NULL)
-	{
-		cout<<root->data<<" ";
-		preorderTraversal(root->left);
-		preorderTraversal(root->right);	
-	}
-}
 RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
 	{
 		if(root ==NULL)
@@ -72,8 +61,6 @@ RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
 class RedBlackTree
 {
 
-	
-	
 	public:
 	
 	RBTNode* root;
@@ -224,7 +211,6 @@ class RedBlackTree
 		{	
 			
 			rotateRight( node->parent);
-			
 			node = node->right;
 		}
 		else
@@ -246,7 +232,7 @@ class RedBlackTree
 		RBTNode *newNode = new RBTNode(data);
 		
 		this->root = BSTInsert(this->root,newNode);
-		
+
 		fixInsertViolation(newNode);
 		
 	}
@@ -263,7 +249,7 @@ class RedBlackTree
 			return max(blackheight(root->left),blackheight(root->right));
 	}
 
-	int greatestElememt(RBTNode *root)
+	RBTNode* greatestElememt(RBTNode *root)
 	{
 		if(root==NULL)
 			return NULL;

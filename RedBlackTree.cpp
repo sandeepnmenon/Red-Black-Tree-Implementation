@@ -122,31 +122,73 @@ class RBT
 		node->parent = nodeLeft;
 	}
 	
-	void fixInsertViolation(RBTNode *&root, RBTNode *&node)
+	void fixRootNode(RBTNode *&node)
 	{
-		RBTNode *paretnNode = node->parent;
-		RBTNode *grandParentNode = getGrandParent(node);
+		if(node->parent == NULL)
+			node-color = BLACK;
+		else
+			fixParentNode(node);		
+	}
+	
+	void fixParentNode(RBTNode *&node)
+	{
+		if(node->color == BLACK)
+			return ;
+		else
+			fixUncleNode(node);	
+	}
+	
+	void fixRedUncleNode(RBTNode *&node)
+	{
+		RBTNode *uncle = getUncle(node);
 		
-		//Case 1 : If node is root
-		if(parentNode==NULL)
+		if( (uncle != NULL) and (uncle->color == RED) )
 		{
-			root->color = BLACK;
+			node->parent->color = BLACK;
+			uncle-color = BLACK;
+			RBTNode *grandParent = getGrandParent(node);
+			grandParent->color = RED;
+			repaintRoot(grandParent);
+		}
+		else
+			fixBlackUncleNode(node);
+	}
+	
+	void fixBlackUncleNode(RBTNode *&node)
+	{
+		RBTNode *grandParent = getGrandParent(node);
+		
+		if( (node == node->parent->right) and (node->parent == grandParent->left) )
+		{
+			rotateLeft(node->parent);
+			
+			node = node->left;
+		}
+		else if( (node == node->parent->left) and (node->parent == grandParent->right) )
+		{
+			rotateRight(node->parent);
+			
+			node = node->right;
 		}
 		else
 		{
-			//Case 2: Parent is black
-			if(parentNode->color == RED)
-			{
-				return ; //Valid tree
-			}
-			//Case 3 : Parent is Red
-			else
-			{
+			node->parent->color = BLACK;
+			grandParent->color = RED;
 			
-			}
-		
+			if(node == node->parent->left)
+				rotateRight(grandParent);
+			else
+				rotateLeft(grandParent);
 		}
 		
+	}
+	
+	void fixInsertViolation(RBTNode *&root, RBTNode *&node)
+	{
+		fixRootNode(root);
+		fixParentNode(root);
+		fixRedUncleNode(root);
+		fixBlackUncleNode(root);
 	}
 	
 	void insertNode(RBTNode *root, int data)
@@ -157,7 +199,6 @@ class RBT
 		
 		fixInsertViolation(this->root, newNode);
 		
-
 	}
 
 };

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 #include <bits/stdc++.h>
+=======
+#include <stdlib.h>
+#include <algorithm>
+>>>>>>> f31a0494208d12af9092f4fd945c42ceeaa778b7
 #define BLACK 0
 #define RED 1
 #define DOUBLE_BLACK 2
@@ -12,7 +17,7 @@ class RBTNode
 	public:
 	int color;
 	
-	int data;
+	bool data;
 	
 	RBTNode* parent;
 	RBTNode* left;
@@ -244,6 +249,28 @@ class RedBlackTree
 		
 		fixInsertViolation(newNode);
 		
+	}
+
+	int blackheight(RBTNode *root)
+	{
+		if(root==NULL)
+			return 0;
+		if(root->color== BLACK)
+		{
+			return 1+max(blackheight(root->left),blackheight(root->right));
+		}
+		else
+			return max(blackheight(root->left),blackheight(root->right));
+	}
+
+	int greatestElememt(RBTNode *root)
+	{
+		if(root==NULL)
+			return NULL;
+		else if (root->right==NULL)
+			return root;
+		else
+			return greatestElememt(root->right);
 	}
 
 };

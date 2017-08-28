@@ -7,15 +7,14 @@
 #define newline cout<<endl;
 using namespace std;
 
-
+//Red Black Tree Node
 class RBTNode
 {
-	
-	public:
 	
 	int color;	
 	int data;
 	
+	public:
 	RBTNode* parent;
 	RBTNode* left;
 	RBTNode* right;
@@ -26,20 +25,40 @@ class RBTNode
 		parent = left = right = NULL;
 		color = RED;
 	}
+
+	void setColor(int color)
+	{
+		this->color = color;
+	}
+
+	int getColor()
+	{
+		return this->color;
+	}
+
+	int getData()
+	{
+		return this->data;
+	}
+
+	void setData(int data)
+	{
+		this->data = data;
+	}
 	
 };
 
-
+//Insert node in a Binary Search Tree
 RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
 	{
 		if(root ==NULL)
 			return node;
-		if(root->data > node->data)
+		if(root->getData() > node->getData())
 		{
 			root->left = BSTInsert(root->left,node);
 			root->left->parent = root;
 		}
-		else if(root->data < node->data)
+		else if(root->getData() < node->getData())
 		{
 			root->right = BSTInsert(root->right,node);
 			root->right->parent =root;
@@ -49,18 +68,33 @@ RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
 
 	}
 
+//Red Black Tree class
 class RedBlackTree
 {
 
-	public:
-	
 	RBTNode* root;
 	
+	public:
 	RedBlackTree(int data)
 	{
 		root = new RBTNode(data);
-		root->color = BLACK;
+		root->setColor(BLACK);
 	}
+
+	RBTNode* getRoot()
+	{
+		return root;
+	}
+
+	//Swapping colors of two nodes
+	void swapNodeColor(RBTNode *nodeA, RBTNode *nodeB)
+	{
+		int tempColor = nodeA->getColor();
+		nodeA->setColor(nodeB->getColor());
+		nodeB->setColor(tempColor);
+
+	}
+
 	RBTNode* getMinValueNode(RBTNode *subRoot)
 	{
 		RBTNode *current = subRoot;
@@ -71,6 +105,29 @@ class RedBlackTree
 
 	}
 
+
+	int getBlackHeight(RBTNode *root)
+	{
+		if(root==NULL)
+			return 0;
+		if(root->getColor()== BLACK)
+		{
+			return 1+max(getBlackHeight(root->left),getBlackHeight(root->right));
+		}
+		else
+			return max(getBlackHeight(root->left),getBlackHeight(root->right));
+	}
+
+	RBTNode* getMaxValueNode(RBTNode *root)
+	{
+		if(root==NULL)
+			return NULL;
+		else if (root->right==NULL)
+			return root;
+		else
+			return getMaxValueNode(root->right);
+	}
+	
 	RBTNode* getInorderSuccessor(RBTNode *node)
 	{
 		if(node->right != NULL)
@@ -85,7 +142,6 @@ class RedBlackTree
 		return parentNode;
 
 	}
-
 
 	RBTNode* getGrandParent(RBTNode *node)
 	{
@@ -154,7 +210,7 @@ class RedBlackTree
 		//cout<<root->data<<" "<<root->right->data<<endl;
 	}
 	
-	
+	//Fixes Red Black Tree propertied after inserting a node	
 	void fixInsertViolation(RBTNode *&node)
 	{
 
@@ -163,7 +219,7 @@ class RedBlackTree
 	 
 	 	//If node is root then color node to black
 	 	//If node is red it's parent should not be red
-	    while ((node != root) and (node->color != BLACK) and (node->parent->color == RED))
+	    while ((node != root) and (node->getColor() != BLACK) and (node->parent->getColor() == RED))
 	    {
 	 
 	        parentNode = node->parent;
@@ -179,11 +235,11 @@ class RedBlackTree
 	            /* Case : 1
 	               The uncle of node is also red
 	               Only Recoloring required */
-	            if (uncleNode != NULL and uncleNode->color == RED)
+	            if (uncleNode != NULL and uncleNode->getColor() == RED)
 	            {
-	                grandParentNode->color = RED;
-	                parentNode->color = BLACK;
-	                uncleNode->color = BLACK;
+	                grandParentNode->setColor(RED);
+	                parentNode->setColor(BLACK);
+	                uncleNode->setColor(BLACK);
 	                node = grandParentNode;
 	            }
 	 
@@ -204,7 +260,7 @@ class RedBlackTree
 	                   node is left child of its parent
 	                   Right-rotation required */
 	                rotateRight(grandParentNode);
-	                swap(parentNode->color, grandParentNode->color);
+	                swapNodeColor(parentNode, grandParentNode);
 	                node = parentNode;
 	            }
 	        }
@@ -218,11 +274,11 @@ class RedBlackTree
 	            /*  Case : 1
 	                The uncle of node is also red
 	                Only Recoloring required */
-	            if ((uncleNode != NULL) && (uncleNode->color == RED))
+	            if ((uncleNode != NULL) && (uncleNode->getColor() == RED))
 	            {
-	                grandParentNode->color = RED;
-	                parentNode->color = BLACK;
-	                uncleNode->color = BLACK;
+	                grandParentNode->setColor(RED);
+	                parentNode->setColor(BLACK);
+	                uncleNode->setColor(BLACK);
 	                node = grandParentNode;
 	            }
 	            else
@@ -241,13 +297,13 @@ class RedBlackTree
 	                   node is right child of its parent
 	                   Left-rotation required */
 	                rotateLeft(grandParentNode);
-	                swap(parentNode->color, grandParentNode->color);
+	                swapNodeColor(parentNode, grandParentNode);
 	                node = parentNode;
 	            }
 	        }
 	    }
 	 
-	    root->color = BLACK;
+	    root->setColor(BLACK);
 	}
 	
 	void insertNode(int data)
@@ -260,34 +316,12 @@ class RedBlackTree
 		
 	}
 
-	int blackheight(RBTNode *root)
-	{
-		if(root==NULL)
-			return 0;
-		if(root->color== BLACK)
-		{
-			return 1+max(blackheight(root->left),blackheight(root->right));
-		}
-		else
-			return max(blackheight(root->left),blackheight(root->right));
-	}
-
-	RBTNode* greatestElememt(RBTNode *root)
-	{
-		if(root==NULL)
-			return NULL;
-		else if (root->right==NULL)
-			return root;
-		else
-			return greatestElememt(root->right);
-	}
-
 	void inorderTraversal(RBTNode *root)
 	{
 		if(root != NULL)
 		{
 			inorderTraversal(root->left);
-			cout<<root->data<<" ";
+			cout<<root->getData()<<" ";
 			inorderTraversal(root->right);	
 		}
 	}
@@ -297,7 +331,7 @@ class RedBlackTree
 	{
 		if(root != NULL)
 		{
-			cout<<root->data<<" ";
+			cout<<root->getData()<<" ";
 			preorderTraversal(root->left);
 			preorderTraversal(root->right);	
 		}

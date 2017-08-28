@@ -16,10 +16,10 @@ int main()
 
 	cout<<"Inorder Traversal  ";
 	newline
-	rbt->inorderTraversal(rbt->root);
+	rbt->inorderTraversal(rbt->getRoot());
 	newline
 	cout<<"Preorder Traversal ";
 	newline
-	rbt->preorderTraversal(rbt->root);
+	rbt->preorderTraversal(rbt->getRoot());
 	newline
 }

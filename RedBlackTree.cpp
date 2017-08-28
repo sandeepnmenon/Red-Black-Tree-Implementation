@@ -566,4 +566,61 @@ class RedBlackTree
 
 };
 
+void merge(RedBlackTree *tree1, RedBlackTree *tree2)
+	{	
+		int p=tree1->getBlackHeight(tree1->getRoot());
+		int q=tree2->getBlackHeight(tree2->getRoot());
+		//cout<<p<<" "<<q<<endl;
+		if(p<q)
+		{
+			RBTNode *max_node = tree1->getMaxValueNode(tree1->getRoot());
+			int data = max_node->getData();
+			int color = max_node->getColor();
+			tree1->deleteNode(max_node->getData());
+			RBTNode *R1 = tree2->findNodewithBlackHeightLeft(tree2->getRoot(),p);
+			RBTNode *parentNode = R1->parent;
+			//cout<<R1->getData()<<" aaa"<<endl;
+			parentNode->left = new RBTNode(data,RED);
+			parentNode->left->left=tree1->getRoot();
+			parentNode->left->left->parent=parentNode->left;
+			parentNode->left->right=R1;
+			parentNode->left->right->parent=parentNode->left;
+			//tree2->fixInsertViolation(parentNode->left);
+		}
+		else if(p==q)
+		{
+			RBTNode *max_node = tree1->getMaxValueNode(tree1->getRoot());
+			int data = max_node->getData();
+			int color = max_node->getColor();
+			tree1->deleteNode(max_node->getData());
+			RBTNode *R1 = tree2->findNodewithBlackHeightLeft(tree2->getRoot(),p);
+			RBTNode *parentNode = R1->parent;
+			//cout<<R1->getData()<<" aaa"<<endl;
+			parentNode->left = new RBTNode(data,RED);
+			parentNode->left->left=tree1->getRoot();
+			parentNode->left->left->parent=parentNode->left;
+			parentNode->left->right=R1;
+			parentNode->left->right->parent=parentNode->left;
+			tree2->getRoot()->setColor(BLACK);
+		}
+		else
+		{
+			RBTNode *min_node = tree2->getMinValueNode(tree2->getRoot());
+			int data = min_node->getData();
+			int color = min_node->getColor();
+			tree2->deleteNode(min_node->getData());
+
+			RBTNode *R1 = tree1->findNodewithBlackHeightRight(tree1->getRoot(),q);
+			RBTNode *parentNode = R1->parent;
+			//cout<<R1->getData()<<" aaa"<<endl;
+			parentNode->right = new RBTNode(data,RED);
+			parentNode->right->left=tree2->getRoot();
+			parentNode->right->left->parent=parentNode->right;
+			parentNode->right->right=R1;
+			parentNode->right->right->parent=parentNode->right;
+
+
+		}
+	}
+
 

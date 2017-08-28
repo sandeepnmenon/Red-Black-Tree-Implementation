@@ -14,7 +14,11 @@ int main()
 		rbt->insertNode(nodesToInsert[i]);
 	}
 
+	cout<<"Inorder Traversal  ";
+	newline
 	rbt->inorderTraversal(rbt->root);
+	newline
+	cout<<"Preorder Traversal ";
 	newline
 	rbt->preorderTraversal(rbt->root);
 	newline

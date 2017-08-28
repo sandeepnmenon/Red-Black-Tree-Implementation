@@ -157,152 +157,92 @@ class RedBlackTree
 	
 	void fixInsertViolation(RBTNode *&node)
 	{
-		if(node->parent == NULL)
-			node->color = BLACK;
-		else
-			fixParentNode(node);
-	}
-	void fixParentNode(RBTNode *&node)
-	{
-		if(node->parent->color == BLACK)
-			return ;
-		else
-			fixRedUncleNode(node);	
-	}
-	
-	void fixRedUncleNode(RBTNode *&node)
-	{
-		RBTNode *uncle = getUncle(node);
-		
-		if( (uncle != NULL) and (uncle->color == RED) )
-		{
-			node->parent->color = BLACK;
-			uncle->color = BLACK;
-			RBTNode *grandParent = getGrandParent(node);
-			grandParent->color = RED;
-			fixInsertViolation(grandParent);
-		}
-		else
-			fixBlackUncleNode(node);
-	}
-	
-	void fixBlackUncleNode(RBTNode *&node)
-	{
-		RBTNode *grandParentNode = getGrandParent(node);
 
-		if(grandParentNode == NULL)
-			return ;
-
-		if( (node == node->parent->right) and (node->parent == grandParentNode->left) )
-		{
-			rotateLeft(node->parent);
-			node = node->left;
-		}
-		else if( (node == node->parent->left) and (node->parent == grandParentNode->right) )
-		{	
-			
-			rotateRight( node->parent);
-			node = node->right;
-		}
-		else
-		{
-			node->parent->color = BLACK;
-			grandParentNode->color = RED;
-			
-			if(node == node->parent->left)
-				rotateRight( grandParentNode);
-			else
-				rotateLeft( grandParentNode);
-		}
-		
-	}
-	
-	void fixInsertViolation(RBTNode *&root, RBTNode *&pt)
-	{
-
-		RBTNode *parent_pt = NULL;
-	    RBTNode *grand_parent_pt = NULL;
+		RBTNode *parentNode = NULL;
+	    RBTNode *grandParentNode = NULL;
 	 
-	    while ((pt != root) && (pt->color != BLACK) &&
-	           (pt->parent->color == RED))
+	 	//If node is root then color node to black
+	 	//If node is red it's parent should not be red
+	    while ((node != root) and (node->color != BLACK) and (node->parent->color == RED))
 	    {
 	 
-	        parent_pt = pt->parent;
-	        grand_parent_pt = pt->parent->parent;
+	        parentNode = node->parent;
+	        grandParentNode = getGrandParent(node);
 	 
 	        /*  Case : A
-	            Parent of pt is left child of Grand-parent of pt */
-	        if (parent_pt == grand_parent_pt->left)
+	            Parent of node is left child of Grand-parent of node */
+	        if (parentNode == grandParentNode->left)
 	        {
 	 
-	            RBTNode *uncle_pt = grand_parent_pt->right;
+	            RBTNode *uncleNode = grandParentNode->right;
 	 
 	            /* Case : 1
-	               The uncle of pt is also red
+	               The uncle of node is also red
 	               Only Recoloring required */
-	            if (uncle_pt != NULL && uncle_pt->color == RED)
+	            if (uncleNode != NULL and uncleNode->color == RED)
 	            {
-	                grand_parent_pt->color = RED;
-	                parent_pt->color = BLACK;
-	                uncle_pt->color = BLACK;
-	                pt = grand_parent_pt;
+	                grandParentNode->color = RED;
+	                parentNode->color = BLACK;
+	                uncleNode->color = BLACK;
+	                node = grandParentNode;
 	            }
 	 
 	            else
 	            {
 	                /* Case : 2
-	                   pt is right child of its parent
+	                   node is right child of its parent
 	                   Left-rotation required */
-	                if (pt == parent_pt->right)
+	                if (node == parentNode->right)
 	                {
-	                    rotateLeft(parent_pt);
-	                    pt = parent_pt;
-	                    parent_pt = pt->parent;
+	                    rotateLeft(parentNode);
+	
+	                    node = parentNode;
+	                    parentNode = node->parent;
 	                }
 	 
 	                /* Case : 3
-	                   pt is left child of its parent
+	                   node is left child of its parent
 	                   Right-rotation required */
-	                rotateRight(grand_parent_pt);
-	                swap(parent_pt->color, grand_parent_pt->color);
-	                pt = parent_pt;
+	                rotateRight(grandParentNode);
+	                swap(parentNode->color, grandParentNode->color);
+	                node = parentNode;
 	            }
 	        }
 	 
 	        /* Case : B
-	           Parent of pt is right child of Grand-parent of pt */
+	           Parent of node is right child of Grand-parent of node */
 	        else
 	        {
-	            RBTNode *uncle_pt = grand_parent_pt->left;
+	            RBTNode *uncleNode = grandParentNode->left;
 	 
 	            /*  Case : 1
-	                The uncle of pt is also red
+	                The uncle of node is also red
 	                Only Recoloring required */
-	            if ((uncle_pt != NULL) && (uncle_pt->color == RED))
+	            if ((uncleNode != NULL) && (uncleNode->color == RED))
 	            {
-	                grand_parent_pt->color = RED;
-	                parent_pt->color = BLACK;
-	                uncle_pt->color = BLACK;
-	                pt = grand_parent_pt;
+	                grandParentNode->color = RED;
+	                parentNode->color = BLACK;
+	                uncleNode->color = BLACK;
+	                node = grandParentNode;
 	            }
 	            else
 	            {
 	                /* Case : 2
-	                   pt is left child of its parent
+	                   node is left child of its parent
 	                   Right-rotation required */
-	                if (pt == parent_pt->left)
+	                if (node == parentNode->left)
 	                {
-	                    rotateRight(parent_pt);
-	                    pt = parent_pt;
-	                    parent_pt = pt->parent;
+	                    rotateRight(parentNode);
+	                    node = parentNode;
+	                    parentNode = node->parent;
 	                }
 	 
 	                /* Case : 3
-	                   pt is right child of its parent
+	                   node is right child of its parent
 	                   Left-rotation required */
-	                rotateLeft(grand_parent_pt);
-	                swap(parent_pt->color, grand_parent_pt->color);
-	                pt = parent_pt;
+	                rotateLeft(grandParentNode);
+	                swap(parentNode->color, grandParentNode->color);
+	                node = parentNode;
 	            }
 	        }
 	    }
@@ -316,7 +256,7 @@ class RedBlackTree
 		
 		this->root = BSTInsert(this->root,newNode);
 
-		fixInsertViolation(this->root,newNode);
+		fixInsertViolation(newNode);
 		
 	}
 

@@ -26,6 +26,12 @@ class RBTNode
 		color = RED;
 	}
 
+	RBTNode (int data,int color)
+	{
+		this->data = data;
+		this->color = color;
+		parent = left = right = NULL;
+	}
 	void setColor(int color)
 	{
 		this->color = color;
@@ -50,7 +56,7 @@ class RBTNode
 
 //Insert node in a Binary Search Tree
 RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
-	{
+{
 		if(root ==NULL)
 			return node;
 		if(root->getData() > node->getData())
@@ -66,7 +72,8 @@ RBTNode* BSTInsert(RBTNode *root, RBTNode *node)
 	
 		return root;
 
-	}
+}
+
 
 //Red Black Tree class
 class RedBlackTree
@@ -79,6 +86,11 @@ class RedBlackTree
 	{
 		root = new RBTNode(data);
 		root->setColor(BLACK);
+	}
+
+	RedBlackTree()
+	{
+
 	}
 
 	RBTNode* getRoot()
@@ -105,10 +117,9 @@ class RedBlackTree
 
 	}
 
-
 	int getBlackHeight(RBTNode *root)
 	{
-		if(root==NULL)
+		if(root==NULL ||root->getData()==-1)
 			return 0;
 		if(root->getColor()== BLACK)
 		{
@@ -127,7 +138,7 @@ class RedBlackTree
 		else
 			return getMaxValueNode(root->right);
 	}
-	
+
 	RBTNode* getInorderSuccessor(RBTNode *node)
 	{
 		if(node->right != NULL)
@@ -316,9 +327,203 @@ class RedBlackTree
 		
 	}
 
+	RBTNode* getNodeToDeletePosition(RBTNode *root,int key)
+	{
+		if(root == NULL)
+			return root;
+		//If key is in left subtree
+		if(key < root->getData())
+			return getNodeToDeletePosition(root->left,key);
+		//If key is in right subtree
+		else if (key > root->getData())
+			return getNodeToDeletePosition(root->right,key);
+
+		//Key is at root
+		if(root->left == NULL or root->right == NULL)
+			return root;
+		
+		RBTNode *temp = getMaxValueNode(root->left);
+		root->setData(temp->getData());
+		return getNodeToDeletePosition(root->left,temp->getData());
+	}
+
+	void fixDeleteViolation(RBTNode *node)
+	{
+		if (node == NULL)
+	        return;
+
+	    if (node == root) 
+	    {
+	        root = NULL;
+	        return;
+	    }
+
+	    //If one of node or it's child is red
+	    if (node->getColor() == RED || node->left->getColor() == RED || node->right->getColor() == RED) 
+	    {
+	        RBTNode *child = node->left != NULL ? node->left : node->right;
+
+	        //if node is left child
+	        if (node == node->parent->left) 
+	        {
+	            node->parent->left = child;
+	            if (child != NULL)
+	            {	
+	            	child->parent = node->parent;
+	            	child->setColor(BLACK);
+	            }
+	            delete (node);
+	        } 
+	        //if node is right child
+	        else 
+	        {
+	            node->parent->right = child;
+	            if (child != NULL)
+	            {   
+	            	child->parent = node->parent;
+	            	child->setColor(BLACK);
+	        	}	
+	            delete (node);
+	        }
+	    }
+	    //if both node and it's child is black 
+	    else 
+	    {
+	        RBTNode *sibling = NULL;
+	        RBTNode *parent = NULL;
+	        RBTNode *ptr = node;
+	        ptr->setColor(DOUBLE_BLACK);
+	        while (ptr != root and ptr->getColor() == DOUBLE_BLACK) 
+	        {
+	            parent = ptr->parent;
+	            //If ptr is left child
+	            if (ptr == parent->left) 
+	            {
+	                sibling = parent->right;
+
+		                if(!sibling->right)
+						{
+							sibling->right = new RBTNode(-1,BLACK);
+							sibling->right->parent = sibling;
+						}
+						if(!sibling->left)
+						{
+							sibling->left = new RBTNode(-1,BLACK);
+							sibling->left->parent = sibling;
+						}
+	                //If sibling is red
+	                //Make sibling black
+	                //Make parent red
+	                //Rotate parent left
+	                if (sibling->getColor() == RED) 
+	                {
+	                    sibling->setColor(BLACK);
+	                    parent->setColor(RED);
+	                    //cout<<root->getData();
+	                    rotateLeft(parent);
+
+	                } 
+	                //If sibling is black
+	                else 
+	                {
+	                	//If both children of sibling are black
+	                	//Make sibling red
+	                	//If parent is red, make it black
+	                	//If parent is black,make it double black
+	                    if (sibling->left->getColor() == BLACK and sibling->right->getColor() == BLACK) 
+	                    {
+	                        sibling->setColor(RED);
+	                        if(parent->getColor() == RED)
+	                            parent->setColor(BLACK);
+	                        else
+	                            parent->setColor( DOUBLE_BLACK);
+	                        ptr = parent;
+	                    } 
+	                    else 
+	                    {
+	                        if (sibling->right->getColor() == BLACK) {
+	                            sibling->left->setColor( BLACK);
+	                            sibling->setColor( RED);
+	                            rotateRight(sibling);
+	                            sibling = parent->right;
+	                        }
+	                        sibling->setColor( parent->getColor());
+	                        parent->setColor( BLACK);
+	                        sibling->right->setColor( BLACK);
+	                        rotateLeft(parent);
+	                        break;
+	                    }
+	                }
+	            } 
+	            else 
+	            {
+	                sibling = parent->left;
+	                if(!sibling->right)
+						{
+							sibling->right = new RBTNode(-1,BLACK);
+							sibling->right->parent = sibling;
+						}
+						if(!sibling->left)
+						{
+							sibling->left = new RBTNode(-1,BLACK);
+							sibling->left->parent = sibling;
+						}
+	                if (sibling->getColor() == RED) {
+	                    sibling->setColor( BLACK);
+	                    parent->setColor( RED);
+	                    rotateRight(parent);
+	                } else {
+	                    if (sibling->left->getColor() == BLACK and sibling->right->getColor() == BLACK) {
+	                        sibling->setColor( RED);
+	                        if (parent->getColor() == RED)
+	                            parent->setColor( BLACK);
+	                        else
+	                            parent->setColor( DOUBLE_BLACK);
+	                        ptr = parent;
+	                    } else {
+	                        if (sibling->left->getColor() == BLACK) {
+	                            sibling->right->setColor( BLACK);
+	                            sibling->setColor( RED);
+	                            rotateLeft(sibling);
+	                            sibling = parent->left;
+	                        }
+	                        sibling->setColor( parent->getColor());
+	                        parent->setColor( BLACK);
+	                        sibling->left->setColor( BLACK);
+	                        rotateRight(parent);
+	                        break;
+	                    }
+	                }
+	            }
+	        }
+	        if (node == node->parent->left)
+	            node->parent->left = NULL;
+	        else
+	            node->parent->right = NULL;
+	        delete(node);
+	        root->setColor( BLACK);
+	    }
+
+	}
+	void deleteNode(int data)
+	{
+		RBTNode *nodeToDelete = getNodeToDeletePosition(this->root,data);
+		if(!nodeToDelete->right)
+		{
+			nodeToDelete->right = new RBTNode(-1,BLACK);
+			nodeToDelete->right->parent = nodeToDelete;
+		}
+		if(!nodeToDelete->left)
+		{
+			nodeToDelete->left = new RBTNode(-1,BLACK);
+			nodeToDelete->left->parent = nodeToDelete;
+		}
+		fixDeleteViolation(nodeToDelete);
+	}
+
 	void inorderTraversal(RBTNode *root)
 	{
-		if(root != NULL)
+		if(root != NULL and root->getData()!=-1)
 		{
 			inorderTraversal(root->left);
 			cout<<root->getData()<<" ";
@@ -329,13 +534,35 @@ class RedBlackTree
 
 	void preorderTraversal(RBTNode *root)
 	{
-		if(root != NULL)
+		if(root != NULL and root->getData()!=-1)
 		{
 			cout<<root->getData()<<" ";
 			preorderTraversal(root->left);
 			preorderTraversal(root->right);	
 		}
 	}
+
+
+	RBTNode* findNodewithBlackHeightLeft(RBTNode *node,int p)
+	{
+		if(getBlackHeight(node)==p)
+		{
+			return node;
+		}
+		else 
+			return findNodewithBlackHeightLeft(node->left,p);
+	}
+
+	RBTNode* findNodewithBlackHeightRight(RBTNode *node,int p)
+	{
+		if(getBlackHeight(node)==p)
+		{
+			return node;
+		}
+		else 
+			return findNodewithBlackHeightRight	(node->right,p);
+	}
+	
 
 };
 

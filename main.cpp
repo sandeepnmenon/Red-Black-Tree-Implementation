@@ -34,11 +34,16 @@ int main()
 
 	printTreeTraversals(rbt1,1);
 
-	int nodesToInsert2[]={4,5,6,7,8,9};
+	int nodesToInsert2[]={6,7,8,9,10};
 	RedBlackTree *rbt2 = createRedBlackTree(nodesToInsert2,sizeof(nodesToInsert2)/sizeof(int));
 
 	printTreeTraversals(rbt2,3);
 
+
+	
 	merge(rbt1,rbt2);
-	printTreeTraversals(rbt2,4);
+	if(rbt1->getBlackHeight(rbt1->getRoot()) > rbt2->getBlackHeight(rbt2->getRoot()))
+		printTreeTraversals(rbt1,4);
+	else
+		printTreeTraversals(rbt2,4);
 }

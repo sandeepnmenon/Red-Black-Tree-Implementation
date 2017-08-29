@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 #define BLACK 0
@@ -98,6 +99,10 @@ class RedBlackTree
 		return root;
 	}
 
+	void setRoot(RBTNode *node)
+	{
+		this->root = node;
+	}
 	//Swapping colors of two nodes
 	void swapNodeColor(RBTNode *nodeA, RBTNode *nodeB)
 	{
@@ -119,7 +124,7 @@ class RedBlackTree
 
 	int getBlackHeight(RBTNode *root)
 	{
-		if(root==NULL ||root->getData()==-1)
+		if(root==NULL || root->getData() == -1)
 			return 0;
 		if(root->getColor()== BLACK)
 		{
@@ -218,7 +223,6 @@ class RedBlackTree
 		nodeLeft->right = node;
 		node->parent = nodeLeft;
 
-		//cout<<root->data<<" "<<root->right->data<<endl;
 	}
 	
 	//Fixes Red Black Tree propertied after inserting a node	
@@ -235,7 +239,6 @@ class RedBlackTree
 	 
 	        parentNode = node->parent;
 	        grandParentNode = getGrandParent(node);
-	 
 	        /*  Case : A
 	            Parent of node is left child of Grand-parent of node */
 	        if (parentNode == grandParentNode->left)
@@ -272,6 +275,7 @@ class RedBlackTree
 	                   Right-rotation required */
 	                rotateRight(grandParentNode);
 	                swapNodeColor(parentNode, grandParentNode);
+	            	
 	                node = parentNode;
 	            }
 	        }
@@ -313,7 +317,11 @@ class RedBlackTree
 	            }
 	        }
 	    }
-	 
+	 	 
+
+	 	//inorderTraversal(root);
+	 	//preorderTraversal(root);       
+	    //cout<<root->getData();newline
 	    root->setColor(BLACK);
 	}
 	
@@ -536,7 +544,7 @@ class RedBlackTree
 	{
 		if(root != NULL and root->getData()!=-1)
 		{
-			cout<<root->getData()<<" ";
+			cout<<root->getData()<<" "<<((root->getColor() == BLACK)?'B':'R')<<" ";
 			preorderTraversal(root->left);
 			preorderTraversal(root->right);	
 		}
@@ -545,7 +553,11 @@ class RedBlackTree
 
 	RBTNode* findNodewithBlackHeightLeft(RBTNode *node,int p)
 	{
-		if(getBlackHeight(node)==p)
+
+		if(p==0)
+			return root;
+
+		if(getBlackHeight(node)==p and node->getColor() == BLACK)
 		{
 			return node;
 		}
@@ -555,7 +567,7 @@ class RedBlackTree
 
 	RBTNode* findNodewithBlackHeightRight(RBTNode *node,int p)
 	{
-		if(getBlackHeight(node)==p)
+		if(getBlackHeight(node)==p and node->getColor() == BLACK)
 		{
 			return node;
 		}
@@ -566,42 +578,56 @@ class RedBlackTree
 
 };
 
+
 void merge(RedBlackTree *tree1, RedBlackTree *tree2)
 	{	
+		RBTNode *max_node = tree1->getMaxValueNode(tree1->getRoot());
+		int data = max_node->getData();
+		int color = max_node->getColor();
+		tree1->deleteNode(max_node->getData());
+
 		int p=tree1->getBlackHeight(tree1->getRoot());
 		int q=tree2->getBlackHeight(tree2->getRoot());
 		//cout<<p<<" "<<q<<endl;
 		if(p<q)
 		{
-			RBTNode *max_node = tree1->getMaxValueNode(tree1->getRoot());
-			int data = max_node->getData();
-			int color = max_node->getColor();
-			tree1->deleteNode(max_node->getData());
+			
 			RBTNode *R1 = tree2->findNodewithBlackHeightLeft(tree2->getRoot(),p);
 			RBTNode *parentNode = R1->parent;
 			//cout<<R1->getData()<<" aaa"<<endl;
+			
 			parentNode->left = new RBTNode(data,RED);
+			
+			parentNode->left->parent = parentNode;
 			parentNode->left->left=tree1->getRoot();
-			parentNode->left->left->parent=parentNode->left;
+			if(parentNode->left->left)
+				parentNode->left->left->parent=parentNode->left;
+			
 			parentNode->left->right=R1;
-			parentNode->left->right->parent=parentNode->left;
-			//tree2->fixInsertViolation(parentNode->left);
+			if(parentNode->left->right)
+				parentNode->left->right->parent=parentNode->left;
+			
+			//cout<<parentNode->left->parent->parent->getData();newline
+			//tree2->fixInsertViolation(parentNode->left->right);
 		}
 		else if(p==q)
 		{
-			RBTNode *max_node = tree1->getMaxValueNode(tree1->getRoot());
-			int data = max_node->getData();
-			int color = max_node->getColor();
-			tree1->deleteNode(max_node->getData());
 			RBTNode *R1 = tree2->findNodewithBlackHeightLeft(tree2->getRoot(),p);
-			RBTNode *parentNode = R1->parent;
-			//cout<<R1->getData()<<" aaa"<<endl;
-			parentNode->left = new RBTNode(data,RED);
-			parentNode->left->left=tree1->getRoot();
-			parentNode->left->left->parent=parentNode->left;
-			parentNode->left->right=R1;
-			parentNode->left->right->parent=parentNode->left;
-			tree2->getRoot()->setColor(BLACK);
+			//RBTNode *parentNode = R1->parent;
+			RBTNode *newRoot = new RBTNode(data,RED);
+			
+			cout<<R1->getData();newline
+
+			newRoot->left = tree1->getRoot();
+			if(newRoot->left)
+				newRoot->left->parent = newRoot;
+			
+			newRoot->right = R1;
+			if(newRoot->right)
+			newRoot->right->parent = newRoot;
+
+			tree2->setRoot(newRoot);
+			tree2->fixInsertViolation(R1);
 		}
 		else
 		{
@@ -614,12 +640,12 @@ void merge(RedBlackTree *tree1, RedBlackTree *tree2)
 			RBTNode *parentNode = R1->parent;
 			//cout<<R1->getData()<<" aaa"<<endl;
 			parentNode->right = new RBTNode(data,RED);
+			parentNode->right->parent = parentNode;
 			parentNode->right->left=tree2->getRoot();
 			parentNode->right->left->parent=parentNode->right;
 			parentNode->right->right=R1;
 			parentNode->right->right->parent=parentNode->right;
-
-
+			tree1->fixInsertViolation(parentNode->right->right);
 		}
 	}
 

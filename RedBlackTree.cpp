@@ -642,9 +642,14 @@ void merge(RedBlackTree *tree1, RedBlackTree *tree2)
 			parentNode->right = new RBTNode(data,RED);
 			parentNode->right->parent = parentNode;
 			parentNode->right->left=tree2->getRoot();
-			parentNode->right->left->parent=parentNode->right;
+			
+			if(parentNode->right->left)
+				parentNode->right->left->parent=parentNode->right;
+			
 			parentNode->right->right=R1;
-			parentNode->right->right->parent=parentNode->right;
+			if(parentNode->right->right)
+				parentNode->right->right->parent=parentNode->right;
+			
 			tree1->fixInsertViolation(parentNode->right->right);
 		}
 	}
